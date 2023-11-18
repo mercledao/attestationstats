@@ -3,6 +3,35 @@ const app = express();
 const port = 3000;
 const pgp = require("pg-promise")();
 require("dotenv").config(); // Load environment variables from .env file
+const { MongoClient } = require("mongodb");
+require("dotenv").config(); // Load environment variables from .env file
+
+const mongoUrl = process.env.MONGO_URL; // MongoDB connection URL from .env
+const client = new MongoClient(mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true });
+async function connectToMongo() {
+  try {
+    await client.connect();
+    console.log("Connected to MongoDB");
+
+    // You can add additional code here to work with the MongoDB database
+  } catch (error) {
+    console.error("Error connecting to MongoDB:", error);
+  }
+}
+
+connectToMongo();
+app.get("/api/get-events", async (req, res) => {
+  try {
+    const db = client.db("talentdao_db"); // Use the correct database name
+    const collection = db.collection("events"); // Use the correct collection name
+    
+    const events = await collection.find({}).toArray();
+    res.json(events);
+  } catch (error) {
+    console.error("Error fetching data from MongoDB:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 const db = pgp(process.env.DATABASE_URL);
 

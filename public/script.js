@@ -1,6 +1,8 @@
 let last7DaysData = [];
 let last30DaysData = [];
 let betweenDaysData = [];
+let events = [];
+
 document.addEventListener("DOMContentLoaded", async () => {
     // Global variables to store fetched data
     
@@ -26,6 +28,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     // You can now access the data in the global variables as needed
     console.log("Last 7 Days Data:", last7DaysData);
     console.log("Last 30 Days Data:", last30DaysData);
+    
+
   });
   
 // Assuming you have an HTML form with input fields for startDate and endDate
@@ -44,7 +48,24 @@ form.addEventListener("submit", async (event) => {
 
     // Handle the fetched data (e.g., display it on the web page)
     console.log(data);
+    
   } catch (error) {
     console.error("Error fetching data: ", error);
   }
 });
+
+async function fetchEvents() {
+  try {
+    const response = await fetch("/api/get-events");
+    if (response.ok) {
+      events = await response.json();
+      console.log("Fetched events:", events);
+    } else {
+      console.error("Failed to fetch events:", response.status, response.statusText);
+    }
+  } catch (error) {
+    console.error("Error fetching events:", error);
+  }
+}
+
+fetchEvents();

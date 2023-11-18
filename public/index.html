@@ -5,9 +5,46 @@
     <title>Stacked Bar Chart</title>
     <!-- Include Chart.js library -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        /* CSS for the table */
+        table {
+          border-collapse: collapse;
+          width: 100%;
+        }
+      
+        th, td {
+          border: 1px solid #dddddd;
+          text-align: left;
+          padding: 8px;
+        }
+      
+        th {
+          background-color: #f2f2f2;
+        }
+      
+        /* Add some spacing and center the table */
+        #uniqueCommNamesTable {
+          margin-top: 20px;
+          text-align: center;
+        }
+      </style>
 </head>
 <body>
-    he
+    <!-- Add this div for the loading animation -->
+    <div id="loading-container">
+    <div class="loader"></div>
+    </div>
+  
+    <img style="width: 12%;margin-top: 2%;margin-bottom: 2%;" id="logo" src="https://www.notion.so/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2F6a823b4e-cac7-4111-bbf6-8fc1625e1ecf%2Flogo-white.svg?id=15e46009-a726-4abe-8174-6e66107f860b&table=block&spaceId=1ba33ad2-d5e9-4dac-85f6-480aa1340401&userId=2507eeab-bab4-42bd-ac1b-d9a73379bc2e&cache=v2" alt="Logo">
+   
+    <h1>Total Attestations In Last 7 Days= <div style="display: inline-block;" id="totalcount"></div></h1>
+    <div id="uniqueCommNamesTable"></div>
+
+
+    <h1>7 Day Attestaions Bar Chart [Community Wise]</h1>
+    <canvas id="stackedBarChart7day"></canvas>
+
     <h1>Data Between Dates</h1>
     
     <form id="dateFilterForm">
@@ -19,6 +56,7 @@
     
         <button type="submit">Fetch Data</button>
     </form>
+    <canvas id="stackedBarChartbetweenDays"></canvas>
     
 
     <script src="script.js"></script>

@@ -1,37 +1,86 @@
-/* Add your CSS styles here */
+/* Dark theme styles */
 body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f2f2f2;
-    text-align: center;
-  }
+  background-color: #111;
+  color: #fff;
+  font-family: "Roboto", sans-serif;
+  margin-left: 10%;
   
-  h1 {
-    color: #333;
-  }
-  
-  table {
-    margin: 20px auto;
-    border-collapse: collapse;
-    background-color: white;
-  }
-  
-  table, th, td {
-    border: 1px solid #ddd;
-    padding: 10px;
-  }
-  
-  th {
-    background-color: #333;
-    color: white;
-  }
-  
-  tr:nth-child(even) {
-    background-color: #f2f2f2;
-  }
-  
-  tr:hover {
-    background-color: #ddd;
-  }
-  
+  margin-right: 10%;
+}
+
+h1 {
+  color: #CF80FF;
+}
+
+/* Form styles */
+form {
+  margin-top: 20px;
+  background-color: #222;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+label {
+  color: #fff;
+}
+
+input[type="date"] {
+  background-color: #333;
+  color: #fff;
+  border: 1px solid #444;
+  padding: 5px;
+  border-radius: 4px;
+  margin-right: 10px;
+}
+
+button {
+  background-color: #CF80FF;
+  color: #111;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #a514ff;
+}
+
+/* Canvas styles */
+canvas {
+  background-color: #222;
+  border: 1px solid #444;
+  border-radius: 8px;
+  margin-top: 20px;
+}
+
+/* CSS for the loading container */
+#loading-container {
+  display: none; /* Initially hide the container */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgb(29, 29, 29); /* Semi-transparent background */
+  z-index: 9999; /* Ensure it's above other elements */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* CSS for the loading spinner or animation (adjust styles as needed) */
+.loader {
+  border: 4px solid #f3f3f3; /* Light gray border */
+  border-top: 4px solid #CF80FF; /* Blue border (adjust color) */
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 2s linear infinite; /* Spin animation */
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

@@ -33,7 +33,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     last7DaysData = last7DaysData[0];
     updateDataFromPostGres(last7DaysData);
     console.log("Last 7 Days Data:", last7DaysData);
-
+    countRowsAndUniqueCommNames(last7DaysData);
+    stackedBarChart(last7DaysData, "stackedBarChart7day");
   });
   
 // Assuming you have an HTML form with input fields for startDate and endDate
@@ -58,7 +59,7 @@ form.addEventListener("submit", async (event) => {
   }
 
   updateDataFromPostGres(betweenDaysData)
-
+  stackedBarChart(betweenDaysData,"stackedBarChartbetweenDays");
 });
 
 async function fetchEvents() {
@@ -109,3 +110,163 @@ function updateDataFromPostGres(arr){
     row.task_name=eventNames[row.task_id.replace(/\s+/g, '')];
 })
 }
+
+function stackedBarChart(arr,id){
+  
+  
+  const groupedData = {};
+
+  arr.forEach(item => {
+    const date = new Date(item.created_at).toLocaleDateString(); // Extract date portion
+    const { comm_name } = item;
+    if (!groupedData[date]) {
+      groupedData[date] = {};
+    }
+    if (!groupedData[date][comm_name]) {
+      groupedData[date][comm_name] = 0;
+    }
+    groupedData[date][comm_name]++;
+  });
+  
+  // Extract unique comm_names for legend
+  const uniqueEventNames = [...new Set(last7DaysData.map(item => item.comm_name))];
+  
+  // Create datasets for the chart
+  const datasets = uniqueEventNames.map(eventName => {
+    return {
+      label: eventName,
+      data: Object.values(groupedData).map(dateData => dateData[eventName] || 0),
+      backgroundColor: getRandomColor(), // Replace with desired colors
+    };
+  });
+  
+  // Generate random colors for the chart
+  function getRandomColor() {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+      color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+  }
+  
+  // Chart configuration
+  const chartConfig = {
+    type: 'bar',
+    data: {
+      labels: Object.keys(groupedData),
+      datasets: datasets,
+    },
+    options: {
+      scales: {
+        x: {
+          stacked: true,
+          grid: {
+            color: 'grey', // Change the color of x-axis grid lines
+          },
+          ticks: {
+            color: 'white', // Change the color of x-axis ticks (labels)
+          }
+        },
+        y: {
+          stacked: true,
+          grid: {
+            color: 'grey', // Change the color of x-axis grid lines
+          },
+          ticks: {
+            color: 'white', // Change the color of x-axis ticks (labels)
+          }
+        },
+      },
+      plugins:{
+        legend:{
+          labels:{
+            color: 'white', // Change label font color to white
+          }
+        }
+      }
+    },
+  };
+  // Create and render the chart
+  const ctx = document.getElementById(id).getContext('2d');
+  new Chart(ctx, chartConfig);
+}
+
+
+function countRowsAndUniqueCommNames(data) {
+  // Initialize variables to store counts
+  let totalRowCount = 0;
+  const uniqueCommNames = {};
+
+  // Loop through the data array
+  data.forEach(item => {
+    // Count total rows
+    totalRowCount++;
+
+    // Count unique comm_names
+    const commName = item.comm_name;
+    if (!uniqueCommNames[commName]) {
+      uniqueCommNames[commName] = 1;
+    } else {
+      uniqueCommNames[commName]++;
+    }
+  });
+
+  // Create a 2D array from the uniqueCommNames object
+  const uniqueCommNamesArray = Object.entries(uniqueCommNames).map(([commName, count]) => [commName, count]);
+
+  document.getElementById("totalcount").innerHTML=totalRowCount;
+  uniqueCommNamesArray.sort((a, b) => b[1] - a[1]);
+  generateUniqueCommNamesTable(uniqueCommNamesArray);
+  // console.log('Total Rows:', totalRowCount);
+  // console.log('Unique Comm Names and Counts:', uniqueCommNamesArray);
+}
+
+function generateUniqueCommNamesTable(data) {
+  // Get a reference to the div where the table will be placed
+  const tableContainer = document.getElementById('uniqueCommNamesTable');
+
+  // Create a table element
+  const table = document.createElement('table');
+
+  // Create the table header row
+  const headerRow = table.createTHead().insertRow(0);
+  headerRow.insertCell(0).textContent = 'Community Name';
+  headerRow.insertCell(1).textContent = 'Count';
+
+  // Create table body and populate rows
+  const tbody = table.createTBody();
+  data.forEach(item => {
+    const row = tbody.insertRow();
+    row.insertCell(0).textContent = item[0]; // Community Name
+    row.insertCell(1).textContent = item[1]; // Count
+  });
+
+  // Append the table to the container
+  tableContainer.appendChild(table);
+}
+
+// When data fetching starts, show the loading animation
+function showLoadingAnimation() {
+  document.getElementById('loading-container').style.display = 'block';
+}
+
+// When data fetching is completed, hide the loading animation
+function hideLoadingAnimation() {
+  document.getElementById('loading-container').style.display = 'none';
+}
+
+// Example: Simulate data fetching with a delay (replace with your actual data fetching logic)
+function fetchData() {
+  showLoadingAnimation();
+
+  setTimeout(function() {
+    // Simulate fetching data
+    // ...
+
+    hideLoadingAnimation(); // Hide the loading animation when data is ready
+  }, 3000); // Simulated delay of 2 seconds
+}
+
+// Call the fetchData function to start fetching data
+fetchData();

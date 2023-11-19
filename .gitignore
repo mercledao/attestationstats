@@ -49,3 +49,6 @@ coverage
 
 # Render.com configuration
 render.yaml
+
+# Local Netlify folder
+.netlify

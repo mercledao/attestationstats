@@ -1,2 +1,5 @@
 [build]
-  command = "npm install && NODE_ENV=deploying npm run build"
+  command = "npm install"
+
+[deploy]
+  command = "npm run build"

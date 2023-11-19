@@ -2,11 +2,20 @@ const express = require("express");
 const app = express();
 const port = 3000;
 const pgp = require("pg-promise")();
-require("dotenv").config(); // Load environment variables from .env file
-const { MongoClient } = require("mongodb");
-require("dotenv").config(); // Load environment variables from .env file
+app.use(express.json());
+app.use(express.static("public"));
 
+// Route the root URL ("/") to serve the index.html file
+//index.js
+app.get('/', (req, res) => {
+  res.sendFile('index.html', {root: path.join(__dirname, 'public')});
+})
+
+require("dotenv").config(); // Load environment variables from .env file
+const db = pgp(process.env.DATABASE_URL);
 const mongoUrl = process.env.MONGO_URL; // MongoDB connection URL from .env
+
+const { MongoClient } = require("mongodb");
 const client = new MongoClient(mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true });
 async function connectToMongo() {
   try {
@@ -33,12 +42,7 @@ app.get("/api/get-events", async (req, res) => {
   }
 });
 
-const db = pgp(process.env.DATABASE_URL);
 
-app.use(express.json());
-
-// Serve static files (including index.html) from the "public" folder
-app.use(express.static("public"));
 
 // API to get data for the last 7 days
 app.get("/api/last-7-days", async (req, res) => {
@@ -110,11 +114,10 @@ app.get("/api/data-between-dates", async (req, res) => {
   // ...
 
   
-// Route the root URL ("/") to serve the index.html file
-app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/public/index.html");
-});
 
 app.listen(port, () => {
-  console.log(`Server is listening at http://localhost:${port}`);
+  console.log(`Server is listening at ${port}`);
 });
+
+// index.js
+module.exports = app

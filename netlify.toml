@@ -1,5 +1,2 @@
 [build]
   command = "npm install"
-
-[context.production]
-  command = "npm run build"

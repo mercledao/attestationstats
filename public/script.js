@@ -33,8 +33,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     last7DaysData = last7DaysData[0];
     updateDataFromPostGres(last7DaysData);
     console.log("Last 7 Days Data:", last7DaysData);
-    countRowsAndUniqueCommNames(last7DaysData);
+    countRowsAndUniqueCommNames(last7DaysData,"totalcount","uniqueCommNamesTable");
     stackedBarChart(last7DaysData, "stackedBarChart7day");
+    hideLoadingAnimation();
+    createStackedBarCharts(last7DaysData);
   });
   
 // Assuming you have an HTML form with input fields for startDate and endDate
@@ -59,7 +61,10 @@ form.addEventListener("submit", async (event) => {
   }
 
   updateDataFromPostGres(betweenDaysData)
+  countRowsAndUniqueCommNames(betweenDaysData,"totalcountdate","uniqueCommNamesTableDate");
   stackedBarChart(betweenDaysData,"stackedBarChartbetweenDays");
+
+
 });
 
 async function fetchEvents() {
@@ -129,7 +134,7 @@ function stackedBarChart(arr,id){
   });
   
   // Extract unique comm_names for legend
-  const uniqueEventNames = [...new Set(last7DaysData.map(item => item.comm_name))];
+  const uniqueEventNames = [...new Set(arr.map(item => item.comm_name))];
   
   // Create datasets for the chart
   const datasets = uniqueEventNames.map(eventName => {
@@ -140,15 +145,7 @@ function stackedBarChart(arr,id){
     };
   });
   
-  // Generate random colors for the chart
-  function getRandomColor() {
-    const letters = '0123456789ABCDEF';
-    let color = '#';
-    for (let i = 0; i < 6; i++) {
-      color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
-  }
+ 
   
   // Chart configuration
   const chartConfig = {
@@ -193,7 +190,8 @@ function stackedBarChart(arr,id){
 }
 
 
-function countRowsAndUniqueCommNames(data) {
+
+function countRowsAndUniqueCommNames(data,totalid,tableid) {
   // Initialize variables to store counts
   let totalRowCount = 0;
   const uniqueCommNames = {};
@@ -215,16 +213,28 @@ function countRowsAndUniqueCommNames(data) {
   // Create a 2D array from the uniqueCommNames object
   const uniqueCommNamesArray = Object.entries(uniqueCommNames).map(([commName, count]) => [commName, count]);
 
-  document.getElementById("totalcount").innerHTML=totalRowCount;
+  document.getElementById(totalid).innerHTML=totalRowCount;
   uniqueCommNamesArray.sort((a, b) => b[1] - a[1]);
-  generateUniqueCommNamesTable(uniqueCommNamesArray);
+  generateUniqueCommNamesTable(uniqueCommNamesArray,tableid);
   // console.log('Total Rows:', totalRowCount);
   // console.log('Unique Comm Names and Counts:', uniqueCommNamesArray);
 }
 
-function generateUniqueCommNamesTable(data) {
+
+
+
+ // Generate random colors for the chart
+ function getRandomColor() {
+  const letters = '0123456789ABCDEF';
+  let color = '#';
+  for (let i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+}
+function generateUniqueCommNamesTable(data,tableid) {
   // Get a reference to the div where the table will be placed
-  const tableContainer = document.getElementById('uniqueCommNamesTable');
+  const tableContainer = document.getElementById(tableid);
 
   // Create a table element
   const table = document.createElement('table');
@@ -259,14 +269,105 @@ function hideLoadingAnimation() {
 // Example: Simulate data fetching with a delay (replace with your actual data fetching logic)
 function fetchData() {
   showLoadingAnimation();
-
-  setTimeout(function() {
-    // Simulate fetching data
-    // ...
-
-    hideLoadingAnimation(); // Hide the loading animation when data is ready
-  }, 3000); // Simulated delay of 2 seconds
 }
 
 // Call the fetchData function to start fetching data
 fetchData();
+
+
+
+
+function createStackedBarCharts(data) {
+  // Get the unique comm_names from the data
+  const uniqueCommNames = [...new Set(data.map(item => item.comm_name))];
+  console.log("Uniue Comm Names",uniqueCommNames);
+  // Reference to the campaignwise div
+  const campaignwiseDiv = document.getElementById('campaignwise');
+
+  // Create a chart for each unique comm_name
+  uniqueCommNames.forEach(commName => {
+    // Filter data for the current comm_name
+
+    const commData = data.filter(item => item.comm_name === commName);
+    // console.log("CommWise Data",commData);
+      const groupedData = {};
+
+    commData.forEach(item => {
+    const date = new Date(item.created_at).toLocaleDateString(); // Extract date portion
+    const { task_name } = item;
+    if (!groupedData[date]) {
+      groupedData[date] = {};
+    }
+    if (!groupedData[date][task_name]) {
+      groupedData[date][task_name] = 0;
+    }
+    groupedData[date][task_name]++;
+  });
+
+    // Get unique task_names for stacking
+    const uniqueTaskNames = [...new Set(commData.map(item => item.task_name))];
+
+    // Initialize datasets for the chart
+    const datasets = uniqueTaskNames.map(taskName => {
+      return {
+        label: taskName,
+        data: Object.values(groupedData).map(dateData => dateData[taskName] || 0),
+        backgroundColor: getRandomColor(),
+      };
+    });
+
+    // Create a div to hold the chart
+    const commHeading = document.createElement('h2');
+    commHeading.innerHTML=commData[0].comm_name;
+    campaignwiseDiv.appendChild(commHeading);
+
+    const chartDiv = document.createElement('div');
+    chartDiv.classList.add('chart-container');
+    campaignwiseDiv.appendChild(chartDiv);
+
+    // Create the canvas element for the chart
+    const canvas = document.createElement('canvas');
+    chartDiv.appendChild(canvas);
+
+    // Create the chart using Chart.js
+    
+  // Chart configuration
+  new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels: Object.keys(groupedData),
+      datasets: datasets,
+    },
+    options: {
+      scales: {
+        x: {
+          stacked: true,
+          grid: {
+            color: 'grey', // Change the color of x-axis grid lines
+          },
+          ticks: {
+            color: 'white', // Change the color of x-axis ticks (labels)
+          }
+        },
+        y: {
+          stacked: true,
+          grid: {
+            color: 'grey', // Change the color of x-axis grid lines
+          },
+          ticks: {
+            color: 'white', // Change the color of x-axis ticks (labels)
+          }
+        },
+      },
+      plugins:{
+        legend:{
+          labels:{
+            color: 'white', // Change label font color to white
+          }
+        }
+      }
+    },
+  });
+
+  });
+}

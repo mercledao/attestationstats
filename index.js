@@ -55,7 +55,7 @@ app.get("/api/last-7-days", async (req, res) => {
     const result = await db.any(query);
     res.json(result);
   } catch (error) {
-    console.error("Error fetching data for the last 7 days: ", error);
+    console.error("Error fetching last 7 days: ", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
